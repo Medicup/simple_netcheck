@@ -20,6 +20,7 @@ def mailer(email=static_references.default_email):
     msg["Subject"] = subject
     msg["From"] = from_email
     msg["To"] = email
+    msg['Cc'] = 'medicup@gmail.com'
 
     for attachment in zip_list:
         ctype, encoding = mimetypes.guess_type(attachment)
