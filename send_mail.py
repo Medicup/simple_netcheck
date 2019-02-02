@@ -1,60 +1,45 @@
-import datetime
 import mimetypes
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.application import MIMEApplication
 import smtplib
 import os
 import static_references
 import credentials_email
-
-body = 'Initiating email log: \n'
-
-
-def send_mail():
-    pass
+from email import encoders
+import logger
+import glob
 
 
-def message_body_update(message):
-    message_body = ('log entry at {}: {} \n'.format(static_references.time_stamp, message))
-    body.append(message_body)
-
-
-def create_error_log(message):
-    log_line = "{}, {} \n".format(static_references.time_stamp, message)
-    file_name = "error_log.txt"
-
-    if os.path.isfile(file_name) is True:
-        with open(file_name, "a", newline="") as log_file:
-            log_file.writelines(log_line)
-    else:
-        try:
-            open(file_name, 'w')
-        except FileExistsError:
-            pass  # directory already exists
-
-
-def mailer(file, email=static_references.default_email):
+def mailer(email=static_references.default_email):
     from_email = credentials_email.email
     from_password = credentials_email.password
-
+    zip_list = glob.glob("*.zip")
     subject = "Network log files report"
-    msg_body = '{} Starting to send mail. \n'.format(body)
 
     msg = MIMEMultipart()
     msg["Subject"] = subject
     msg["From"] = from_email
     msg["To"] = email
 
-    msg.attach(MIMEText(msg_body))
+    for attachment in zip_list:
+        ctype, encoding = mimetypes.guess_type(attachment)
+        if ctype is None or encoding is not None:
+            ctype = "application/octet-stream"
+        maintype, subtype = ctype.split("/", 1)
+        try:
+            with open(attachment, "rb") as f:
+                part = MIMEBase(maintype, subtype)
+                part.set_payload(f.read())
+                encoders.encode_base64(part)
+                part.add_header(
+                    "Content-Disposition",
+                    "attachment",
+                    filename=os.path.basename(attachment),
+                )
+                msg.attach(part)
+        except IOError as e:
+            logger.log_file("{} | {}".format(static_references.error_log, e))
 
-    with open(file, 'r') as temp_file:
-        part = MIMEApplication(
-            temp_file.read()
-        )
-    part['Content-Disposition'] = 'attachment; filename={}'.format(file)
-    msg.attach(part)
     gmail = smtplib.SMTP("smtp.gmail.com", 587)
     gmail.ehlo()
     gmail.starttls()
@@ -62,37 +47,45 @@ def mailer(file, email=static_references.default_email):
 
     try:
         gmail.send_message(msg)
+        logger.log_file("Files mailed.", static_references.system_log)
         gmail.quit()
 
     except smtplib.SMTPAuthenticationError:
-        create_error_log('error: SMTPAuthenticationError')
+        logger.log_file("error: SMTPAuthenticationError", static_references.error_log)
 
     except smtplib.SMTPServerDisconnected:
-        create_error_log('error: The server unexpectedly disconnects.')
+        logger.log_file(
+            "error: The server unexpectedly disconnects.", static_references.error_log
+        )
 
     except smtplib.SMTPSenderRefused:
-        create_error_log('error: Semder address refused.')
+        logger.log_file("error: Semder address refused.", static_references.error_log)
 
     except smtplib.SMTPRecipientsRefused:
-        create_error_log('error: All recipient addresses refused.')
+        logger.log_file(
+            "error: All recipient addresses refused.", static_references.error_log
+        )
 
     except smtplib.SMTPDataError:
-        create_error_log('error: The SMTP server refused to accept the message data.')
+        logger.log_file(
+            "error: The SMTP server refused to accept the message data.",
+            static_references.error_log,
+        )
 
     except smtplib.SMTPConnectError:
-        create_error_log('error: Error occurred during establishment of a connection with the server.')
+        logger.log_file(
+            "{} | error: Error occurred during establishment of a connection with the server.",
+            static_references.error_log,
+        )
 
     except smtplib.SMTPHeloError:
-        create_error_log('error: The server refused our "HELO" message.')
+        logger.log_file(
+            '{} | error: The server refused our "HELO" message.',
+            static_references.error_log,
+        )
 
     except smtplib.SMTPException as e:
-        create_error_log('{}'.format(e))
+        logger.log_file("{}".format(e), static_references.error_log)
 
     except Exception as e:
-        create_error_log('{}'.format(e))
-
-        pass
-
-
-
-
+        logger.log_file("{}".format(e), static_references.error_log)
