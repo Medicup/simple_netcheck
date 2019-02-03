@@ -13,7 +13,8 @@ import glob
 def mailer(email=static_references.default_email):
     from_email = credentials_email.email
     from_password = credentials_email.password
-    zip_list = glob.glob("*.zip")
+    zip_list = glob.glob("*Archive*.zip")
+    print(zip_list)
     subject = "Network log files report"
 
     msg = MIMEMultipart()
@@ -47,7 +48,7 @@ def mailer(email=static_references.default_email):
     gmail.login(from_email, from_password)
 
     try:
-        gmail.send_message(msg)
+        #gmail.send_message(msg)
         logger.log_file("Files mailed.", static_references.system_log)
         gmail.quit()
 
