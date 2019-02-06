@@ -49,12 +49,9 @@ def network_state(duration=1):
             url_check = requests.get(url, timeout=5)
             url_speed = url_check.elapsed.total_seconds()
             if url_check.status_code == 200:
-                message = (
-                    "Attempts left = {} | Successful_ping_of | {} | {}.".format(
-                        count, url, url_speed
-                    ),
-                    logger.log_file(message, file_name),
-                )
+                message = "Attempts left = {} | Successful_ping_of | {} | {}.".format(count, url, url_speed)
+                logger.log_file(message, file_name)
+
 
         except Exception as e:
             message = "Attempts left = {} | GENERAL_EXCEPTION_of | {} | NA | {}.".format(

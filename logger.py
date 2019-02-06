@@ -1,5 +1,5 @@
 import os.path
-import static_references
+import datetime
 
 
 def create_log_file(file):
@@ -9,7 +9,7 @@ def create_log_file(file):
     except Exception as e:
         log_file(
             "{} | failed to create file. Please contact administrator and advise the following error description: {}.".format(
-                static_references.time_stamp, e
+                datetime.datetime.now().strftime("%y-%m-%d-%H:%M:%S"), e
             )
         )
         return
@@ -22,12 +22,14 @@ def log_file(message, file):
     :param file: log file defined by type of log (error, syslog, etc)
     :return: log line appended to appropriate log file
     """
+
+    time_stamp = datetime.datetime.now().strftime("%y-%m-%d-%H:%M:%S")
     if os.path.isfile(file):
         with open(file, "a", newline="") as line:
-            line.writelines("{} | {} \n".format(static_references.time_stamp, message))
+            line.writelines("{} | {} \n".format(time_stamp, message))
     else:
         create_log_file(file)
         with open(file, "a", newline="") as line:
             line.writelines(
-                "{} | {} created \n".format(static_references.time_stamp, file)
+                "{} | {} created \n".format(time_stamp, file)
             )
