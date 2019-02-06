@@ -53,11 +53,11 @@ def mailer(email=static_references.default_email):
         logger.log_file("Files mailed.", static_references.system_log)
         gmail.quit()
         print("Archive file emailed. ")
-        print("Moving archive files to /archive")
         if not os.path.exists("archive"):
-            os.makedirs("{}".format(static_references.archive_location))
             print("Creating directory... ")
+            os.makedirs("{}".format(static_references.archive_location))
         for file in zip_list:
+            print("Moving archive files to /archive... ")
             shutil.move(file, static_references.archive_location)
 
     except smtplib.SMTPAuthenticationError:

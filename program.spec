@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['program.py'],
-             pathex=['C:\\Users\\stitched\\PycharmProjects\\simple_netcheck'],
+             pathex=['C:\\Users\\medic\\PycharmProjects\\simple_netcheck'],
              binaries=[],
              datas=[],
              hiddenimports=[],
