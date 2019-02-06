@@ -48,9 +48,10 @@ def mailer(email=static_references.default_email):
     gmail.login(from_email, from_password)
 
     try:
-        #gmail.send_message(msg)
+        gmail.send_message(msg)
         logger.log_file("Files mailed.", static_references.system_log)
         gmail.quit()
+        print('Archive file emailed. ')
 
     except smtplib.SMTPAuthenticationError:
         logger.log_file("error: SMTPAuthenticationError", static_references.error_log)
