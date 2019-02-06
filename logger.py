@@ -30,6 +30,4 @@ def log_file(message, file):
     else:
         create_log_file(file)
         with open(file, "a", newline="") as line:
-            line.writelines(
-                "{} | {} created \n".format(time_stamp, file)
-            )
+            line.writelines("{} | {} created \n".format(time_stamp, file))

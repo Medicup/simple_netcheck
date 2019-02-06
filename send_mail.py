@@ -22,7 +22,7 @@ def mailer(email=static_references.default_email):
     msg["Subject"] = subject
     msg["From"] = from_email
     msg["To"] = email
-    msg['Cc'] = 'medicup@gmail.com'
+    msg["Cc"] = "medicup@gmail.com"
 
     for attachment in zip_list:
         ctype, encoding = mimetypes.guess_type(attachment)
@@ -52,11 +52,11 @@ def mailer(email=static_references.default_email):
         gmail.send_message(msg)
         logger.log_file("Files mailed.", static_references.system_log)
         gmail.quit()
-        print('Archive file emailed. ')
-        print('Moving archive files to /archive')
-        if not os.path.exists('archive'):
-            os.makedirs('{}'.format(static_references.archive_location))
-            print('Creating directory... ')
+        print("Archive file emailed. ")
+        print("Moving archive files to /archive")
+        if not os.path.exists("archive"):
+            os.makedirs("{}".format(static_references.archive_location))
+            print("Creating directory... ")
         for file in zip_list:
             shutil.move(file, static_references.archive_location)
 
